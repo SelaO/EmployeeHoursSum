@@ -141,6 +141,20 @@ $(function () {
         document.getElementById("month").innerHTML = options;
     }
 
+    function fillTable(lines){
+        var table = document.getElementById("error-line-table");
+        
+        for(let l of lines){
+            const row = table.insertRow(0);
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            cell1.innerHTML = l.id;
+            cell2.innerHTML = l.date;
+            cell3.innerHTML = l.is;
+        }
+    }
+
     const selectDateBtn = document.getElementById('generate-file')
     selectDateBtn.addEventListener('click', function (event) {
         ipc.send('generate-file', {

@@ -6,7 +6,7 @@
     <link id="styleSheet" href="css/example.css" rel="stylesheet">
 </head>
 <body>
-<div class="left col">
+<div class="container">
     <!-- <div class="header row navi"></div>
     <div class="body row scroll-y navi">
         <ul id="navigation" class="list-unstyled"></ul>
@@ -18,8 +18,27 @@
         <select id="month" class="dropdown-toggle" data-toggle="dropdown"></select>
         <button id="generate-file" class="btn btn-info" role="button" type="button">Generate file</button>
     </div>
+    <br>
+    <div class="row">
+        <table id="error-line-table" class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>ShiftStart</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>John</td>
+                <td>Doe</td>
+                <td>john@example.com</td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
 </div>
-<div class="right col">
+<!-- <div class="right col">
     <div id="header" class="header row"></div>
     <div class="body row scroll-y">
         <div id="console"></div>
@@ -33,7 +52,7 @@
             </script>
         </footer>
     </div>
-</div>
+</div> -->
 
 <script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min');</script>
 

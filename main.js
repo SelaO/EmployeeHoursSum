@@ -126,8 +126,6 @@ ipc.on('generate-file', function (event, data) {
 })
 
 function generateMappingByYearMonth(year, month){
-    // take info from drop downs 
-
     // shift that starts at end of month and ends at begining of month is added to the new month
     month--;
     const subset = parsedLines.filter(e => e.date.month() == month && e.date.year() == year);
@@ -138,44 +136,48 @@ function generateMappingByYearMonth(year, month){
     calculateTimes(subset);
 }
 
+const ENDBEFORESTART = `shift ended before it started`;
+const WITHOUTEND = `shift started but didn't end`;
+
 function calculateTimes(lines){
     const idsInTime =  [...new Set(lines.map(item => item.id))]; 
     const idHoursMap = generateIdHoursMap(idsInTime);
-    const errorLines = [];
+    const errorLines = new Map([
+        [ENDBEFORESTART, []],
+        [WITHOUTEND, []]
+    ]);
     console.log(idsInTime,idHoursMap);
 
     for(const id of idsInTime){
         let lookingForEndShift = false;
         let shiftStartLine = null;
         for(const line of lines){
-        
             if(line.id == id){
-                
                 if(line.start && !lookingForEndShift){
                     lookingForEndShift = true;
                     shiftStartLine = line;
                 }
                 else if(!line.start && !lookingForEndShift){
                     // found an end time of shift without a start time 
-                    // throw `shift ended before it started line: ${line}`;
                     console.log(`shift ended before it started line:`, line);
-                    errorLines.push(line);
+                    errorLines.get(ENDBEFORESTART).push(line);
                 }
                 else if(!line.start && lookingForEndShift){
                     lookingForEndShift = false;
                     const diffHours = moment.duration(line.date.diff(shiftStartLine.date)).asHours();
                     fillHoursPerShift(idHoursMap.get(id), diffHours);
                 }
-                
             }
         }
 
         if(lookingForEndShift){
             // theres a start of shift without an end 
-            console.log(`theres a start of shift without an end:`, shiftStartLine);
-            errorLines.push(shiftStartLine);
+            console.log(`theres a start of shift without an end:`, shiftStartLine);        
+            errorLines.get(WITHOUTEND).push(shiftStartLine);
         }
     }
+
+    console.log(errorLines);
 }
 
 function fillHoursPerShift(employeeHourSum, shiftHours) {
