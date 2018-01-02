@@ -11,9 +11,14 @@
     <div class="body row scroll-y navi">
         <ul id="navigation" class="list-unstyled"></ul>
     </div> -->
-    <button id="select-file" class="btn btn-info" role="button" type="button">choose file</button>
-    <br>
+    
     <div class="row">
+        <span> 1.</span>
+        <button id="select-file" class="btn btn-info" role="button" type="button">choose file</button>
+    </div>
+
+    <div class="row">
+        <span> 2. choose date</span>
         <select id="year" class="dropdown-toggle" data-toggle="dropdown"></select> 
         <select id="month" class="dropdown-toggle" data-toggle="dropdown"></select>
         <button id="generate-file" class="btn btn-info" role="button" type="button">Generate file</button>
@@ -23,17 +28,14 @@
         <table id="error-line-table" class="table table-striped">
             <thead>
               <tr>
+                <th>&nbsp;</th>
                 <th>ID</th>
                 <th>Date</th>
                 <th>ShiftStart</th>
+                <th>Problem</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>John</td>
-                <td>Doe</td>
-                <td>john@example.com</td>
-              </tr>
             </tbody>
           </table>
     </div>

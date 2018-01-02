@@ -8,43 +8,49 @@ $(function () {
         path = require('path'),
         ejs = require('ejs'),
         pjson = require('./package.json'),
+        moment = require('moment'),
         ipc = require('electron').ipcRenderer
 
     setup()
 
     function setup() {
-        // Check if "Wheit" (Light) theme is selected
-        if ('Bläk' == config.get('theme')) {
-            $('head link#styleSheet').attr('href', 'css/example_dark.css');
-        }
+        // // Check if "Wheit" (Light) theme is selected
+        // if ('Bläk' == config.get('theme')) {
+        //     $('head link#styleSheet').attr('href', 'css/example_dark.css');
+        // }
 
-        $('.header.row.navi').html(loadTemplate('cmdBox', {}));
+        // $('.header.row.navi').html(loadTemplate('cmdBox', {}));
 
-        $('footer').prepend('<img src="img/logo.png" height="24px"/> ' + pjson.productName + ' ' + pjson.version + ' - ');
+        // $('footer').prepend('<img src="img/logo.png" height="24px"/> ' + pjson.productName + ' ' + pjson.version + ' - ');
 
         initContent()
 
-        // Setup buttons
-        var cmdBox = $('.cmdBoxNavi');
+        // // Setup buttons
+        // var cmdBox = $('.cmdBoxNavi');
 
-        cmdBox.find('[data-toggle=config]').on('click', function () {
-            showConfig();
-        });
+        // cmdBox.find('[data-toggle=config]').on('click', function () {
+        //     showConfig();
+        // });
 
-        cmdBox.find('[data-toggle=reload]').on('click', function () {
-            //reload();
-            initContent(loadTemplate('alert', {type:'info', message:'Reload finished.'}));
-        });
+        // cmdBox.find('[data-toggle=reload]').on('click', function () {
+        //     //reload();
+        //     initContent(loadTemplate('alert', {type:'info', message:'Reload finished.'}));
+        // });
 
-        cmdBox.find('[data-toggle=theme]').on('click', function () {
-            var e = $('head link#styleSheet');
+        // cmdBox.find('[data-toggle=theme]').on('click', function () {
+        //     var e = $('head link#styleSheet');
 
-            if (e.attr('href').indexOf('dark') > 0) {
-                e.attr('href', 'css/example.css');
-            } else {
-                e.attr('href', 'css/example_dark.css');
-            }
-        });
+        //     if (e.attr('href').indexOf('dark') > 0) {
+        //         e.attr('href', 'css/example.css');
+        //     } else {
+        //         e.attr('href', 'css/example_dark.css');
+        //     }
+        // });
+
+        // const lines = [{id: 1, date: new Date(), isStart: true,  problem: "asdasf"},
+        //     {id: 1, date: new Date(), isStart: true, problem: "asdasf"},
+        //     {id: 1, date: new Date(), isStart: true,  problem: "asdasf"}];
+        // fillTable(lines)
     }
 
     /**
@@ -72,45 +78,45 @@ $(function () {
     /**
      * Show the configuration.
      */
-    function showConfig() {
-        $('#header').html('<h3><img src="img/logo.png" height="70px"/> Configuration</h3>');
-        $('#content').html(loadTemplate('config', {o:config}));
-        $('#console').html('');
+    // function showConfig() {
+    //     $('#header').html('<h3><img src="img/logo.png" height="70px"/> Configuration</h3>');
+    //     $('#content').html(loadTemplate('config', {o:config}));
+    //     $('#console').html('');
 
-        $('#btnSaveConfig').on('click', function () {
-            saveConfig();
-        });
+    //     $('#btnSaveConfig').on('click', function () {
+    //         saveConfig();
+    //     });
 
-        $('#cfgTheme').on('change', function () {
-            var e = $('head link#styleSheet');
+    //     $('#cfgTheme').on('change', function () {
+    //         var e = $('head link#styleSheet');
 
-            if ('Bläk' == $(this).val()) {
-                e.attr('href', 'css/example_dark.css');
-            } else {
-                e.attr('href', 'css/example.css');
-            }
-        });
-    }
+    //         if ('Bläk' == $(this).val()) {
+    //             e.attr('href', 'css/example_dark.css');
+    //         } else {
+    //             e.attr('href', 'css/example.css');
+    //         }
+    //     });
+    // }
 
     /**
      * Save the configuration.
      */
-    function saveConfig() {
-        var examplePath = $('#cfgExample').val(),
-            theme = $('#cfgTheme').val(),
-            debug = $('#cfgDebug').is(':checked') ? true : false;
+    // function saveConfig() {
+    //     var examplePath = $('#cfgExample').val(),
+    //         theme = $('#cfgTheme').val(),
+    //         debug = $('#cfgDebug').is(':checked') ? true : false;
 
-        if (false == fs.existsSync(examplePath)) {
-            dialog.showErrorBox('Invalid Path', 'The example directory path is invalid');
-            return;
-        }
+    //     if (false == fs.existsSync(examplePath)) {
+    //         dialog.showErrorBox('Invalid Path', 'The example directory path is invalid');
+    //         return;
+    //     }
 
-        config.set('examplePath', examplePath);
-        config.set('debug', debug);
-        config.set('theme', theme);
+    //     config.set('examplePath', examplePath);
+    //     config.set('debug', debug);
+    //     config.set('theme', theme);
 
-        initContent(loadTemplate('alert', {type:'info', message:'Config saved.'}));
-    }
+    //     initContent(loadTemplate('alert', {type:'info', message:'Config saved.'}));
+    // }
 
     // file select     
     const selectDirBtn = document.getElementById('select-file')
@@ -141,17 +147,34 @@ $(function () {
         document.getElementById("month").innerHTML = options;
     }
 
+    // TODO send data after parsing the file 
     function fillTable(lines){
-        var table = document.getElementById("error-line-table");
+        const table = document.getElementById("error-line-table");
         
         for(let l of lines){
-            const row = table.insertRow(0);
-            const cell1 = row.insertCell(0);
-            const cell2 = row.insertCell(1);
-            const cell3 = row.insertCell(2);
+            const row = table.insertRow(1);
+            const cell0 = row.insertCell(0);            
+            const cell1 = row.insertCell(1);
+            const cell2 = row.insertCell(2);
+            const cell3 = row.insertCell(3);
+            const cell4 = row.insertCell(4);
             cell1.innerHTML = l.id;
-            cell2.innerHTML = l.date;
-            cell3.innerHTML = l.is;
+            cell2.innerHTML = l.date._i; // TODO fix 
+            cell3.innerHTML = l.start ? 1 : 0;
+            cell4.innerHTML = l.problem;
+
+            const checkbox = document.createElement("INPUT"); 
+            checkbox.type = "checkbox"; 
+            cell0.appendChild(checkbox);
+        }
+    }
+
+    function emptyTable(){
+        const table = document.getElementById("error-line-table");
+        const tableHeaderRowCount = 1;
+        const rowCount = table.rows.length;
+        for (let i = tableHeaderRowCount; i < rowCount; i++) {
+            table.deleteRow(tableHeaderRowCount);
         }
     }
 
@@ -161,5 +184,12 @@ $(function () {
             year: document.getElementById("year").value,
             month: document.getElementById("month").value
         })
-    })  
+    })
+          
+    ipc.on('error-lines', function (event, data) {
+        // clean the table 
+        emptyTable();
+        console.log("DATA", data);
+        fillTable(data);
+    })
 });

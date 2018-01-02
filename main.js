@@ -19,17 +19,13 @@ const
 let mainWindow
 
 function createWindow() {
-
-    // try { fs.writeFileSync('c:/myfile.txt', "asdasdasd\nasdasdasd", 'utf-8'); }
-    // catch(e) { alert('Failed to save the file !'); }
-
-    var bgColor = ('Wheit' == config.get('theme')) ? '#ffffff' : '#1e1e1e'
+    // var bgColor = ('Wheit' == config.get('theme')) ? '#ffffff' : '#1e1e1e'
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        backgroundColor: bgColor,
+        backgroundColor: 'white',
         icon: 'img/logo.png'
     })
 
@@ -37,11 +33,8 @@ function createWindow() {
 
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`)
-
-    // Open the DevTools.
-    if (config.get('debug')) {
-        mainWindow.webContents.openDevTools()
-    }
+    
+    mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -80,8 +73,8 @@ app.on('activate', function () {
 /*
 line{
     id: 0,
-    time: Date,
-    start: 1 
+    date: Date,
+    start: 1/0
 }
 
 employee{
@@ -104,11 +97,16 @@ function parseLines(file){
 
 function parseLine(line){
     // moment.format("YYYY-MM-DD HH:MM:SS");
-    let arr = line.trim().split("\t");
+    let arr = line.trim().split(/[\s,;\t]+/);   // tabs or spaces 
+
+    if(parseInt(arr[0]) == NaN || parseInt(arr[3]) == NaN){
+        throw "something is wrong with the file, did you edit the file?"
+    }
+
     return {
         id: arr[0],
-        date: moment(arr[1]),
-        start: arr[3] == 1 ? true : false
+        date: moment(`${arr[1]} ${arr[2]}`),
+        start: arr[4] == 1 ? true : false
     }
 }
 
@@ -133,6 +131,12 @@ function generateMappingByYearMonth(year, month){
     console.log(subset);
 
     // TODO handle overlapping between months 
+    /*
+    get the day before, remove all the shifts that ended before the new day 
+    attach them to the start of the lines 
+    */
+    // get previous day of first month and then remove shifts that ended on that day and include the rest in the list
+    
     calculateTimes(subset);
 }
 
@@ -142,16 +146,17 @@ const WITHOUTEND = `shift started but didn't end`;
 function calculateTimes(lines){
     const idsInTime =  [...new Set(lines.map(item => item.id))]; 
     const idHoursMap = generateIdHoursMap(idsInTime);
-    const errorLines = new Map([
-        [ENDBEFORESTART, []],
-        [WITHOUTEND, []]
-    ]);
+    const errorLines = [];
+    
     console.log(idsInTime,idHoursMap);
 
     for(const id of idsInTime){
         let lookingForEndShift = false;
         let shiftStartLine = null;
+        let lastLine = null;
+
         for(const line of lines){
+            lastLine = line;
             if(line.id == id){
                 if(line.start && !lookingForEndShift){
                     lookingForEndShift = true;
@@ -160,7 +165,11 @@ function calculateTimes(lines){
                 else if(!line.start && !lookingForEndShift){
                     // found an end time of shift without a start time 
                     console.log(`shift ended before it started line:`, line);
-                    errorLines.get(ENDBEFORESTART).push(line);
+                    if(line.problem){
+                        console.warn("problem already asigned");
+                    }
+
+                    errorLines.push(Object.assign({problem: ENDBEFORESTART}, line));
                 }
                 else if(!line.start && lookingForEndShift){
                     lookingForEndShift = false;
@@ -173,12 +182,19 @@ function calculateTimes(lines){
         if(lookingForEndShift){
             // theres a start of shift without an end 
             console.log(`theres a start of shift without an end:`, shiftStartLine);        
-            errorLines.get(WITHOUTEND).push(shiftStartLine);
+            if(lastLine.problem){
+                console.warn("problem already asigned");
+            }
+
+            errorLines.push(Object.assign({problem: WITHOUTEND}, lastLine));
         }
     }
 
     console.log(errorLines);
+    mainWindow.webContents.send('error-lines', errorLines);
 }
+
+// todo save data as csv file in the same folder as the source with file name year-month
 
 function fillHoursPerShift(employeeHourSum, shiftHours) {
     employeeHourSum.totalHours += shiftHours;
