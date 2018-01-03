@@ -102,7 +102,7 @@ function parseLine(line){
     if(parseInt(arr[0]) == NaN || parseInt(arr[3]) == NaN){
         throw "something is wrong with the file, did you edit the file?"
     }
-
+// console.log(`${arr[1]} ${arr[2]}`);
     return {
         id: arr[0],
         date: moment(`${arr[1]} ${arr[2]}`),
@@ -113,8 +113,6 @@ function parseLine(line){
 let parsedLines;
 function handleFileSelected(filePath){
     let file = jetpack.read(filePath[0])
-    // TODO validate file 
-
     parsedLines = parseLines(file);
     generateMappingByYearMonth()
 }
@@ -130,6 +128,7 @@ function generateMappingByYearMonth(year, month){
     console.log("===========================");
     console.log(subset);
 
+    
     // TODO handle overlapping between months 
     /*
     get the day before, remove all the shifts that ended before the new day 
@@ -137,7 +136,66 @@ function generateMappingByYearMonth(year, month){
     */
     // get previous day of first month and then remove shifts that ended on that day and include the rest in the list
     
+    // find previous month
+    const prevMonth = (month + 12 - 1) % 12;
+    let prevYear = year;
+    if(prevMonth == 11){
+        prevYear--;
+    }
+    console.log(parsedLines);
+    const lastDayOfMonth = moment(`${prevYear}-${prevMonth}`).daysInMonth();
+    // get all shifts on that day 
+    const shiftsInLastDayOfMonth = parsedLines.filter(e => {
+        const b = e.date.month() == prevMonth && 
+        e.date.year() == prevYear && 
+        e.date.day() == lastDayOfMonth;
+        // console.log(b, e.date.year(), e.date.month(), e.date.day());
+        return b;
+    }
+    );
+    
+    console.log(prevYear, prevMonth, lastDayOfMonth, shiftsInLastDayOfMonth);
+    cleanShiftsFromLastDay(shiftsInLastDayOfMonth);
+
     calculateTimes(subset);
+}
+
+function cleanShiftsFromLastDay(lines){
+    const idsInTime =  [...new Set(lines.map(item => item.id))]; 
+    const elementsToDelete = [];
+    
+    for(const id of idsInTime){
+        let lookingForEndShift = false;
+        let shiftStartLine = null;
+        
+        for(const line of lines){
+            if(line.id == id){
+                if(line.start && !lookingForEndShift){
+                    lookingForEndShift = true;
+                    shiftStartLine = line;
+                }
+                else if(!line.start && !lookingForEndShift){
+                    // found an end time of shift without a start time 
+                    elementsToDelete.push(line);
+                }
+                else if(!line.start && lookingForEndShift){
+                    lookingForEndShift = false;
+                    elementsToDelete.push(line, shiftStartLine);
+                }
+            }
+        }
+    }
+
+    console.log("before", lines);
+    for(let element of elementsToDelete){
+        const index = array.indexOf(element);
+        
+        if (index !== -1) {
+            lines.splice(index, 1);
+        }
+    }
+    console.log("after", lines);
+
 }
 
 const ENDBEFORESTART = `shift ended before it started`;
@@ -165,11 +223,7 @@ function calculateTimes(lines){
                 else if(!line.start && !lookingForEndShift){
                     // found an end time of shift without a start time 
                     console.log(`shift ended before it started line:`, line);
-                    if(line.problem){
-                        console.warn("problem already asigned");
-                    }
-
-                    errorLines.push(Object.assign({problem: ENDBEFORESTART}, line));
+                    errorLines.push({problem: ENDBEFORESTART, date: line.date.format("YYYY-MM-DD HH:MM:SS"), id: line.id, start: line.start});
                 }
                 else if(!line.start && lookingForEndShift){
                     lookingForEndShift = false;
@@ -181,12 +235,8 @@ function calculateTimes(lines){
 
         if(lookingForEndShift){
             // theres a start of shift without an end 
-            console.log(`theres a start of shift without an end:`, shiftStartLine);        
-            if(lastLine.problem){
-                console.warn("problem already asigned");
-            }
-
-            errorLines.push(Object.assign({problem: WITHOUTEND}, lastLine));
+            console.log(`theres a start of shift without an end:`, shiftStartLine);
+            errorLines.push(Object.assign({problem: WITHOUTEND, }, lastLine));
         }
     }
 

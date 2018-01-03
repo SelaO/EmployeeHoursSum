@@ -159,7 +159,7 @@ $(function () {
             const cell3 = row.insertCell(3);
             const cell4 = row.insertCell(4);
             cell1.innerHTML = l.id;
-            cell2.innerHTML = l.date._i; // TODO fix 
+            cell2.innerHTML = l.date; 
             cell3.innerHTML = l.start ? 1 : 0;
             cell4.innerHTML = l.problem;
 
