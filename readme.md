@@ -14,6 +14,15 @@ Input is a file with data on employee shifts, like this:
 The app let's the user choose year and month and sum the times of the shifts whilst finding errors in them.
 It outputs a CSV file for easy excel use. 
 
+It's also possible to choose an id-name map file, it will save that information so it can be done once.
+
+example of this file's data:
+```
+name,id
+Alice, 1
+Bob, 2
+```
+
 ## Installation
 
     yarn install
@@ -26,4 +35,4 @@ Using electromon is reccomended as well:
 
 ## Screens
 
-![screen](https://i.imgur.com/X9TYvSg.png)
+![screen](https://i.imgur.com/u9vPXv0.png)

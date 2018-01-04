@@ -303,6 +303,13 @@ ipc.on('open-file-dialog', function (event) {
     })
 })
 
+/*
+example of a file data:
+name,id
+asdasd, 1
+weqrew, 2
+xcvxcv, 5
+*/
 function handleEmployeeIdFile(filePath) {
     const data = jetpack.read(filePath[0]).replace(/ /g, '');
     const parsedData = papaparse.parse(data, {
