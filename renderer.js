@@ -26,14 +26,12 @@ $(function () {
     }
 
     // file select     
-    const selectDirBtn = document.getElementById('select-file')
-
-    selectDirBtn.addEventListener('click', function (event) {
+    document.getElementById('select-file').addEventListener('click', function (event) {
         ipc.send('open-file-dialog')
     })
 
-    ipc.on('selected-directory', function (event, path) {
-        document.getElementById('selected-file').innerHTML = `You selected: ${path}`
+    document.getElementById('employee-id-file').addEventListener('click', function (event) {
+        ipc.send('employee-id-file')
     })
 
     function initDropDowns() {

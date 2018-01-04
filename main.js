@@ -2,8 +2,6 @@
 
 const
     electron = require('electron'),
-    Conf = require('conf'),
-    config = new Conf(),
     fs = require('fs'),
     // Module to control application life.
     app = electron.app,
@@ -12,6 +10,9 @@ const
     moment = require('moment'),
     ipc = require('electron').ipcMain,
     dialog = require('electron').dialog,
+    Config = require('electron-config'),
+    config = new Config(),
+    papaparse = require('papaparse'),
     // Module to create native browser window.
     BrowserWindow = electron.BrowserWindow
 
@@ -20,8 +21,6 @@ const
 let mainWindow
 
 function createWindow() {
-    // var bgColor = ('Wheit' == config.get('theme')) ? '#ffffff' : '#1e1e1e'
-
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 800,
@@ -109,14 +108,6 @@ function parseLine(line) {
         date: moment(`${arr[1]} ${arr[2]}`),
         start: arr[4] == 1 ? true : false
     }
-}
-
-let parsedLines;
-let saveFilePath;
-function handleFileSelected(filePath) {
-    let file = jetpack.read(filePath[0])
-    parsedLines = parseLines(file);
-    saveFilePath = filePath[0];
 }
 
 ipc.on('generate-file', function (event, data) {
@@ -243,13 +234,19 @@ function lineToErrorDTO(line, problem) {
     }
 }
 
-// todo save data as csv file in the same folder as the source with file name year-month
+// save data as csv file in the same folder as the source with file name year-month
 function saveDataInFile(idHoursMap, dateString) {
     const header = 'ID, Name, Total Hours, upto 8, 8-10, 10-12, 12+\n'
-
+    const employeeIdNameMap = config.get("employeeIdNameMap");
+    console.log(employeeIdNameMap)
     const splitStream = [dateString.concat('\n'), header];
     for (let e of idHoursMap) {
-        splitStream.push(`${e[0]}, name, ${e[1].totalHours}, ${e[1].h8}, ${e[1].h8_10}, ${e[1].h10_12}, ${e[1].h12} \n`)
+        const tentativeName = employeeIdNameMap.find(elem => elem.id == e[0]);
+        const name = tentativeName ? tentativeName.name : '';
+
+        console.log(name, tentativeName, e[0]);
+
+        splitStream.push(`${e[0]}, ${name}, ${e[1].totalHours}, ${e[1].h8}, ${e[1].h8_10}, ${e[1].h10_12}, ${e[1].h12} \n`)
     }
 
     const stream = splitStream.join('');
@@ -288,14 +285,40 @@ function generateIdHoursMap(idsInTime) {
     }]));
 }
 
+let parsedLines;
+let saveFilePath;
+function handleFileSelected(filePath) {
+    let file = jetpack.read(filePath[0]);
+    parsedLines = parseLines(file);
+    saveFilePath = filePath[0];
+}
+
 ipc.on('open-file-dialog', function (event) {
     dialog.showOpenDialog({
         properties: ['openFile']
     }, function (files) {
         if (files) {
-            event.sender.send('select-file', files)
             handleFileSelected(files)
         }
     })
 })
 
+function handleEmployeeIdFile(filePath) {
+    const data = jetpack.read(filePath[0]).replace(/ /g, '');
+    const parsedData = papaparse.parse(data, {
+        header: true,
+        dynamicTyping: true
+    })
+
+    config.set("employeeIdNameMap", parsedData.data);
+}
+
+ipc.on('employee-id-file', (e) => {
+    dialog.showOpenDialog({
+        properties: ['openFile']
+    }, function (files) {
+        if (files) {
+            handleEmployeeIdFile(files)
+        }
+    })
+})
