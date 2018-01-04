@@ -1,6 +1,18 @@
-# Electron Bootstrap bootstrap
+# Sum Employee Hours Electron App
 
-An Example "Electron + Bootstrap" application
+Input is a file with data on employee shifts, like this:
+
+```
+        5	2017-11-08 07:54:43	1	0	0	0
+        1	2017-11-08 12:30:45	1	0	0	0
+        5	2017-11-08 16:56:25	1	1	0	0
+        6	2017-11-08 17:03:12	1	1	0	0
+        6	2017-11-09 07:28:41	1	0	0	0
+        5	2017-11-09 08:15:30	1	0	0	0
+```
+
+The app let's the user choose year and month and sum the times of the shifts whilst finding errors in them.
+It outputs a CSV file for easy excel use. 
 
 ## Installation
 
@@ -9,4 +21,4 @@ An Example "Electron + Bootstrap" application
     
 ## Screens
 
-![2016-08-07-190620_802x623_scrot](https://cloud.githubusercontent.com/assets/33978/17466289/3b4651a2-5cd2-11e6-825e-16e9ca9e6e69.png)
+![screen](https://i.imgur.com/X9TYvSg.png)
