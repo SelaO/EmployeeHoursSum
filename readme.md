@@ -19,6 +19,11 @@ It outputs a CSV file for easy excel use.
     yarn install
     yarn start
     
+Using electromon is reccomended as well: 
+
+    npm i -g electromon
+    electromon .
+
 ## Screens
 
 ![screen](https://i.imgur.com/X9TYvSg.png)
