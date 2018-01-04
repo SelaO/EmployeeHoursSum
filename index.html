@@ -1,66 +1,54 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link id="styleSheet" href="css/example.css" rel="stylesheet">
 </head>
+
 <body>
-<div class="container">
-    <!-- <div class="header row navi"></div>
-    <div class="body row scroll-y navi">
-        <ul id="navigation" class="list-unstyled"></ul>
-    </div> -->
-    
-    <div class="row">
-        <span> 1.</span>
-        <button id="select-file" class="btn btn-info" role="button" type="button">choose file</button>
+    <div class="container">
+        <div class="row">
+            <span> 1.</span>
+            <button id="select-file" class="btn btn-info" role="button" type="button">choose file</button>
+        </div>
+        <div class="row">
+            <span> 2. choose date</span>
+            <select id="year" class="dropdown-toggle" data-toggle="dropdown"></select>
+            <select id="month" class="dropdown-toggle" data-toggle="dropdown"></select>
+        </div>
+        <br>
+        <div class="row">
+            <span> 3. </span>
+            <button id="generate-file" class="btn btn-info" role="button" type="button">Generate file</button>
+        </div>
+        <br>
+        <div class="row">
+            <table id="error-line-table" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>ShiftStart</th>
+                        <th>Problem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="row">
-        <span> 2. choose date</span>
-        <select id="year" class="dropdown-toggle" data-toggle="dropdown"></select> 
-        <select id="month" class="dropdown-toggle" data-toggle="dropdown"></select>
-        <button id="generate-file" class="btn btn-info" role="button" type="button">Generate file</button>
-    </div>
-    <br>
-    <div class="row">
-        <table id="error-line-table" class="table table-striped">
-            <thead>
-              <tr>
-                <th>&nbsp;</th>
-                <th>ID</th>
-                <th>Date</th>
-                <th>ShiftStart</th>
-                <th>Problem</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-    </div>
-</div>
-<!-- <div class="right col">
-    <div id="header" class="header row"></div>
-    <div class="body row scroll-y">
-        <div id="console"></div>
-        <div id="content"></div>
-    </div>
-    
-    <div class="footer row">
-        <footer>
-            <script>
-            document.write('node ' + process.versions.node + ' - Chromium ' + process.versions.chrome + ' - Electron ' + process.versions.electron)
-            </script>
-        </footer>
-    </div>
-</div> -->
+    <script>
+        window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min');
+    </script>
 
-<script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min');</script>
+    <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
-<script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-
-<script> require('./renderer.js') </script>
+    <script>
+        require('./renderer.js')
+    </script>
 
 </body>
 
