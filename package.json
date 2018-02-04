@@ -2,7 +2,7 @@
   "name": "EmployeeHourSum",
   "productName": "Employee Hour Sum",
   "version": "0.0.1",
-  "electronVersion": "1.7.9",
+  "electronVersion": "^1.8.1",
   "description": "",
   "author": "Sela Oren",
   "license": "SEE LICENSE IN copying",
@@ -15,7 +15,9 @@
     "url": "git+https://github.com/elkuku/electron-bootstrap-bootstrap.git"
   },
   "devDependencies": {
-    "electron": "^1.7.9"
+    "electron": "^1.8.1",
+    "electron-packager": "^10.1.2",
+    "electron-winstaller": "^2.6.4"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",

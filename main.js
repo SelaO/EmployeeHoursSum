@@ -13,6 +13,7 @@ const
     Config = require('electron-config'),
     config = new Config(),
     papaparse = require('papaparse'),
+    // electronInstaller = require('electron-winstaller'),
     // Module to create native browser window.
     BrowserWindow = electron.BrowserWindow
 
@@ -83,6 +84,7 @@ employee{
 }
 */
 
+
 function parseLines(file) {
     let lines = file.split("\n");
     let parsedLines = [];
@@ -95,18 +97,24 @@ function parseLines(file) {
     return parsedLines;
 }
 
+// 0 means start of shift, 1 is shift end
+
+const ShiftStart = true;
+const ShiftEnd = false;
 function parseLine(line) {
-    // date format: "YYYY-MM-DD HH:MM:SS"
+    // date format: "YYYY-MM-DD hh:mm:ss"
     let arr = line.trim().split(/[\s,;\t]+/);   // tabs or spaces 
 
     if (parseInt(arr[0]) == NaN || parseInt(arr[3]) == NaN || arr.length != 7) {
         dialog.showErrorBox("Something is wrong with the file", "Did you edit the file?\nMake sure it's in the same format as the other lines");
     }
-
+    // let x = moment(`${arr[1]} ${arr[2]}`);
+    // console.log(x.toString())
+    // console.log(x.format("YYYY-MM-DD HH:mm:ss"))
     return {
         id: arr[0],
         date: moment(`${arr[1]} ${arr[2]}`),
-        start: arr[4] == 1 ? true : false
+        start: arr[4] == 0 ? ShiftStart : ShiftEnd
     }
 }
 
@@ -186,7 +194,7 @@ function calculateTimes(lines) {
     const idHoursMap = generateIdHoursMap(idsInTime);
     const errorLines = [];
 
-    console.log(idsInTime, idHoursMap);
+    // console.log(idsInTime, idHoursMap);
 
     for (const id of idsInTime) {
         let lookingForEndShift = false;
@@ -202,7 +210,7 @@ function calculateTimes(lines) {
                 }
                 else if (!line.start && !lookingForEndShift) {
                     // found an end time of shift without a start time 
-                    console.log(ENDBEFORESTART, line);
+                    // console.log(ENDBEFORESTART, line);
                     errorLines.push(lineToErrorDTO(line, ENDBEFORESTART));
                 }
                 else if (!line.start && lookingForEndShift) {
@@ -215,12 +223,12 @@ function calculateTimes(lines) {
 
         if (lookingForEndShift) {
             // theres a start of shift without an end 
-            console.log(WITHOUTEND, shiftStartLine);
+            // console.log(WITHOUTEND, shiftStartLine);
             errorLines.push(lineToErrorDTO(lastLine, WITHOUTEND));
         }
     }
 
-    console.log(errorLines);
+    // console.log(errorLines);
     mainWindow.webContents.send('error-lines', errorLines);
     saveDataInFile(idHoursMap, lines[lines.length - 1].date.format("YYYY-MM"));
 }
@@ -228,7 +236,7 @@ function calculateTimes(lines) {
 function lineToErrorDTO(line, problem) {
     return {
         problem: problem,
-        date: line.date.format("YYYY-MM-DD HH:MM:SS"),
+        date: line.date.format("YYYY-MM-DD HH:mm:ss"),
         id: line.id,
         start: line.start
     }
@@ -238,13 +246,13 @@ function lineToErrorDTO(line, problem) {
 function saveDataInFile(idHoursMap, dateString) {
     const header = 'ID, Name, Total Hours, upto 8, 8-10, 10-12, 12+\n'
     const employeeIdNameMap = config.get("employeeIdNameMap");
-    console.log(employeeIdNameMap)
+    // console.log(employeeIdNameMap)
     const splitStream = [dateString.concat('\n'), header];
     for (let e of idHoursMap) {
         const tentativeName = employeeIdNameMap.find(elem => elem.id == e[0]);
         const name = tentativeName ? tentativeName.name : '';
 
-        console.log(name, tentativeName, e[0]);
+        // console.log(name, tentativeName, e[0]);
 
         splitStream.push(`${e[0]}, ${name}, ${e[1].totalHours}, ${e[1].h8}, ${e[1].h8_10}, ${e[1].h10_12}, ${e[1].h12} \n`)
     }
@@ -252,7 +260,7 @@ function saveDataInFile(idHoursMap, dateString) {
     const stream = splitStream.join('');
     const dirPath = path.dirname(saveFilePath);
     const newFilePath = dirPath.concat(`\\${dateString} Employee Hours.csv`);
-    console.log(newFilePath);
+    // console.log(newFilePath);
     jetpack.write(newFilePath, stream);
 }
 
