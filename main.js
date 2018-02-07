@@ -224,7 +224,8 @@ function calculateTimes(lines) {
         if (lookingForEndShift) {
             // theres a start of shift without an end 
             // console.log(WITHOUTEND, shiftStartLine);
-            errorLines.push(lineToErrorDTO(lastLine, WITHOUTEND));
+            errorLines.push(lineToErrorDTO(shiftStartLine, WITHOUTEND));
+            // console.log('\n\n', errorLines)
         }
     }
 
@@ -234,27 +235,31 @@ function calculateTimes(lines) {
 }
 
 function lineToErrorDTO(line, problem) {
-    return {
+    const DTO = {
         problem: problem,
         date: line.date.format("YYYY-MM-DD HH:mm:ss"),
         id: line.id,
         start: line.start
     }
+
+    return DTO;
 }
 
 // save data as csv file in the same folder as the source with file name year-month
 function saveDataInFile(idHoursMap, dateString) {
-    const header = 'ID, Name, Total Hours, upto 8, 8-10, 10-12, 12+\n'
+    const header = 'ID, Name, Shifts, Total Hours, upto 8, 8-10, 10-12, 12+\n'
     const employeeIdNameMap = config.get("employeeIdNameMap");
     // console.log(employeeIdNameMap)
     const splitStream = [dateString.concat('\n'), header];
     for (let e of idHoursMap) {
-        const tentativeName = employeeIdNameMap.find(elem => elem.id == e[0]);
-        const name = tentativeName ? tentativeName.name : '';
+        if (e) {
+            const tentativeName = employeeIdNameMap.find(elem => elem.id == e[0]);
+            const name = tentativeName ? tentativeName.name : '';
 
-        // console.log(name, tentativeName, e[0]);
+            // console.log(name, tentativeName, e[0]);
 
-        splitStream.push(`${e[0]}, ${name}, ${e[1].totalHours}, ${e[1].h8}, ${e[1].h8_10}, ${e[1].h10_12}, ${e[1].h12} \n`)
+            splitStream.push(`${e[0]}, ${name}, ${e[1].shiftCount}, ${e[1].totalHours}, ${e[1].h8}, ${e[1].h8_10}, ${e[1].h10_12}, ${e[1].h12} \n`)
+        }
     }
 
     const stream = splitStream.join('');
@@ -268,18 +273,23 @@ function fillHoursPerShift(employeeHourSum, shiftHours) {
     employeeHourSum.totalHours += shiftHours;
 
     let remainder = shiftHours - 12;
+    remainder = remainder > 0 ? remainder : 0;
     employeeHourSum.h12 += remainder;
     shiftHours -= remainder;
 
     remainder = shiftHours - 10;
+    remainder = remainder > 0 ? remainder : 0;
     employeeHourSum.h10_12 += remainder;
     shiftHours -= remainder;
 
     remainder = shiftHours - 8;
+    remainder = remainder > 0 ? remainder : 0;
     employeeHourSum.h8_10 += remainder;
     shiftHours -= remainder;
 
-    employeeHourSum.h8 += shiftHours;
+    employeeHourSum.h8 += shiftHours > 0 ? shiftHours : 0;
+
+    employeeHourSum.shiftCount++;
 }
 
 function generateIdHoursMap(idsInTime) {
@@ -290,6 +300,7 @@ function generateIdHoursMap(idsInTime) {
         h8_10: 0,
         h10_12: 0,
         h12: 0,
+        shiftCount: 0,
     }]));
 }
 
